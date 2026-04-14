@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filveo — Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:       #d4c4a8;
+    --gold-b:     #e8d9bc;
+    --gold-dim:   rgba(212,196,168,0.35);
+    --gold-faint: rgba(212,196,168,0.14);
+    --bg:         #0d1018;
+    --bg2:        #111520;
+    --bg3:        #161d2e;
+    --border:     rgba(212,196,168,0.11);
+    --border-h:   rgba(212,196,168,0.28);
+    --dim:        rgba(212,196,168,0.50);
+    --faint:      rgba(212,196,168,0.22);
+    --white:      #f2ede4;
+    --green:      #5db87a;
+    --blue:       #6a9fd8;
+    --sidebar-w:  220px;
+    --top-h:      48px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+  html, body { height:100%; overflow:hidden; }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--gold);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    height: var(--top-h);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    gap: 12px;
+    z-index: 10;
+    position: relative;
+  }
+  .logo {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--gold-b);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+  .logo-sep {
+    width: 1px;
+    height: 18px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .active-label {
+    font-size: 13px;
+    color: var(--dim);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .active-label strong { color: var(--gold-b); font-weight: 500; }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── PILL NAV (top) ── */
+  .top-nav {
+    display: flex;
+    gap: 4px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 3px;
+  }
+  .top-nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 13px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--faint);
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .top-nav-btn .icon { font-size: 14px; line-height: 1; }
+  .top-nav-btn:hover { color: var(--dim); background: rgba(255,255,255,0.03); }
+  .top-nav-btn.active {
+    color: var(--gold-b);
+    background: rgba(212,196,168,0.10);
+    border: 1px solid rgba(212,196,168,0.18);
+  }
+  .top-nav-btn .badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 8px;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .badge-live  { background: rgba(93,184,122,0.15); color: var(--green); border: 1px solid rgba(93,184,122,0.25); }
+  .badge-int   { background: rgba(106,159,216,0.12); color: var(--blue);  border: 1px solid rgba(106,159,216,0.22); }
+  .badge-int2  { background: rgba(212,196,168,0.08); color: var(--faint); border: 1px solid var(--border); }
+
+  /* pop-out button */
+  .pop-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--faint);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .pop-btn:hover { color: var(--dim); border-color: var(--border-h); }
+
+  /* ── CONTENT AREA ── */
+  .content {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── IFRAMES ── */
+  .frame-wrap {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+  }
+  .frame-wrap.visible { display: flex; }
+
+  iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: var(--bg);
+  }
+
+  /* ── LOADING OVERLAY ── */
+  .loading {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 5;
+    transition: opacity 0.3s;
+  }
+  .loading.hidden { opacity: 0; pointer-events: none; }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 2px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-label {
+    font-size: 12px;
+    color: var(--faint);
+    font-family: 'Cormorant Garamond', serif;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── HOMEPAGE PANEL ── */
+  .home-panel {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    padding: 40px 48px 60px;
+    background: var(--bg);
+    display: none;
+  }
+  .home-panel.visible { display: block; }
+
+  /* Noise texture */
+  .home-panel::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .home-inner { position: relative; z-index: 1; max-width: 900px; }
+
+  .h-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .h-eyebrow::before {
+    content: ''; display: block; width: 24px; height: 1px; background: var(--border-h);
+  }
+  .h-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .h-title em { font-style: italic; color: var(--gold); }
+  .h-sub {
+    margin-top: 16px;
+    font-size: 15px;
+    color: var(--dim);
+    max-width: 520px;
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  /* Stats strip */
+  .stats {
+    display: flex;
+    gap: 0;
+    margin: 32px 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(255,255,255,0.015);
+    width: fit-content;
+  }
+  .stat {
+    padding: 16px 28px;
+    border-right: 1px solid var(--border);
+  }
+  .stat:last-child { border-right: none; }
+  .stat-v {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 300;
+    color: var(--gold-b);
+    line-height: 1;
+  }
+  .stat-l { font-size: 11px; color: var(--faint); margin-top: 4px; }
+
+  /* Destination cards */
+  .cards-label {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 16px;
+  }
+
+  /* Primary big card */
+  .card-primary {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 36px;
+    background: linear-gradient(135deg, rgba(212,196,168,0.04), rgba(212,196,168,0.01));
+    margin-bottom: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-primary:hover {
+    border-color: var(--border-h);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+  }
+  .card-primary::before {
+    content: '';
+    position: absolute; top: 0; right: 0;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, rgba(212,196,168,0.07) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(30%,-30%);
+  }
+  .card-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3px 11px;
+    margin-bottom: 14px;
+  }
+  .dot-live {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+  .card-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--white);
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+  }
+  .card-desc { font-size: 13px; color: var(--dim); line-height: 1.6; max-width: 440px; }
+  .card-pills {
+    display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px;
+  }
+  .pill {
+    font-size: 10px; padding: 4px 10px; border-radius: 20px;
+    background: rgba(212,196,168,0.07); color: var(--dim);
+    border: 1px solid rgba(212,196,168,0.1);
+  }
+  .card-cta {
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 22px; font-size: 13px; font-weight: 600; color: var(--gold-b);
+  }
+  .arrow-circle {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 50%;
+    border: 1px solid var(--border-h);
+    font-size: 14px;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .card-primary:hover .arrow-circle { transform: translateX(3px); background: rgba(212,196,168,0.08); }
+
+  /* Secondary 3-col */
+  .cards-secondary {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 12px;
+  }
+  .card-sec {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    background: rgba(255,255,255,0.012);
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-sec:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 40px rgba(0,0,0,0.3);
+  }
+  .card-sec.demo-card { border-color: rgba(106,159,216,0.18); }
+  .card-sec.demo-card:hover { border-color: rgba(106,159,216,0.4); }
+  .card-sec.gtm-card { border-color: rgba(212,196,168,0.13); }
+  .card-sec.gtm-card:hover { border-color: var(--border-h); }
+  .card-sec.land-card { border-color: rgba(93,184,122,0.15); }
+  .card-sec.land-card:hover { border-color: rgba(93,184,122,0.38); }
+
+  .sec-corner {
+    position: absolute; top: 12px; right: 12px;
+    font-size: 9px; letter-spacing: 0.1em;
+    padding: 2px 8px; border-radius: 8px;
+    font-weight: 600;
+  }
+  .demo-badge { background: rgba(106,159,216,0.12); color: var(--blue); border: 1px solid rgba(106,159,216,0.22); }
+  .gtm-badge  { background: rgba(212,196,168,0.07); color: var(--faint); border: 1px solid var(--border); }
+  .land-badge { background: rgba(93,184,122,0.10); color: var(--green); border: 1px solid rgba(93,184,122,0.22); }
+
+  .sec-icon  { font-size: 22px; margin-bottom: 12px; display: block; }
+  .sec-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: var(--white); margin-bottom: 6px; }
+  .sec-desc  { font-size: 12px; color: var(--dim); line-height: 1.55; }
+  .sec-feats { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+  .sec-feat  { font-size: 11px; color: var(--faint); display: flex; align-items: center; gap: 6px; }
+  .sec-feat::before { content: '✦'; font-size: 7px; color: var(--gold-dim); }
+  .sec-foot  {
+    margin-top: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11px; color: var(--faint);
+    border-top: 1px solid var(--border); padding-top: 12px;
+  }
+  .open-link { color: var(--gold); font-weight: 500; display: flex; align-items: center; gap: 4px; font-size: 12px; transition: gap 0.15s; }
+  .card-sec:hover .open-link { gap: 8px; }
+
+  /* ── STATUS BAR ── */
+  .statusbar {
+    height: 28px;
+    flex-shrink: 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 20px;
+    font-size: 10px;
+    color: var(--faint);
+    background: var(--bg);
+    letter-spacing: 0.03em;
+  }
+  .status-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 4px var(--green);
+    flex-shrink: 0;
+  }
+  .status-item { display: flex; align-items: center; gap: 6px; }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(10px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .a1{animation:fadeUp .4s .05s both}
+  .a2{animation:fadeUp .4s .1s  both}
+  .a3{animation:fadeUp .4s .15s both}
+  .a4{animation:fadeUp .4s .2s  both}
+  .a5{animation:fadeUp .4s .26s both}
+  .a6{animation:fadeUp .4s .3s  both}
+  .a7{animation:fadeUp .4s .34s both}
+
+  /* ── Responsive ── */
+  @media (max-width: 860px) {
+    .top-nav-btn .badge { display:none; }
+    .top-nav-btn span.label { display:none; }
+    .home-panel { padding: 28px 20px 40px; }
+    .cards-secondary { grid-template-columns: 1fr 1fr; }
+    .stats { flex-direction: column; }
+    .stat { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="topbar">
+  <div class="logo">Filveo</div>
+  <div class="logo-sep"></div>
+  <div class="active-label" id="active-label">Command Center</div>
+
+  <nav class="top-nav" role="tablist">
+    <button class="top-nav-btn active" onclick="show('home')" id="btn-home" role="tab">
+      <span class="icon">⊞</span><span class="label">Hub</span>
+    </button>
+    <button class="top-nav-btn" onclick="show('app')" id="btn-app" role="tab">
+      <span class="icon">⬡</span><span class="label">App</span>
+      <span class="badge badge-live">LIVE</span>
+    </button>
+    <button class="top-nav-btn" onclick="show('demo')" id="btn-demo" role="tab">
+      <span class="icon">▶</span><span class="label">Demo</span>
+      <span class="badge badge-int">16 scenes</span>
+    </button>
+    <button class="top-nav-btn" onclick="show('gtm')" id="btn-gtm" role="tab">
+      <span class="icon">📖</span><span class="label">GTM Bible</span>
+      <span class="badge badge-int2">v4</span>
+    </button>
+    <button class="top-nav-btn" onclick="show('landing')" id="btn-landing" role="tab">
+      <span class="icon">🌐</span><span class="label">Landing</span>
+      <span class="badge badge-live">SITE</span>
+    </button>
+  </nav>
+
+  <div class="topbar-actions">
+    <button class="pop-btn" id="pop-btn" onclick="popOut()" style="display:none">
+      ↗ Open in new tab
+    </button>
+  </div>
+</div>
+
+<!-- ── CONTENT ── -->
+<div class="content">
+
+  <!-- HOME PANEL -->
+  <div class="home-panel visible" id="pane-home">
+    <div class="home-inner">
+      <div class="h-eyebrow a1">All resources · one place</div>
+      <h1 class="h-title a2">Your complete<br><em>sales operating system.</em></h1>
+      <p class="h-sub a3">CRM app, interactive demo, GTM strategy, and landing page — click any tab above or card below to navigate.</p>
+
+      <div class="stats a4">
+        <div class="stat"><div class="stat-v">$28.4k</div><div class="stat-l">avg. annual revenue recovered</div></div>
+        <div class="stat"><div class="stat-v">12</div><div class="stat-l">CRM modules</div></div>
+        <div class="stat"><div class="stat-v">16</div><div class="stat-l">demo scenes</div></div>
+        <div class="stat"><div class="stat-v">5,973%</div><div class="stat-l">ROI · payback in 1.6 days</div></div>
+      </div>
+
+      <div class="cards-label a5">Launch destination</div>
+
+      <!-- App primary -->
+      <div class="card-primary a5" onclick="show('app')">
+        <div class="card-tag"><div class="dot-live"></div>CRM Application · Active</div>
+        <div class="card-title">Full CRM Application</div>
+        <div class="card-desc">12 tabs. Post-sale lifecycle, mileage auto-sync, vendor credits, urgency-scored pipeline, commission calculator, client portal, and team workspace.</div>
+        <div class="card-pills">
+          <span class="pill">Post-30 / Post-60</span>
+          <span class="pill">Urgency Score</span>
+          <span class="pill">Mileage Log</span>
+          <span class="pill">Vendor Credits</span>
+          <span class="pill">Quote PDF</span>
+          <span class="pill">Client Portal</span>
+          <span class="pill">PWA Ready</span>
+        </div>
+        <div class="card-cta"><div class="arrow-circle">→</div> Open application</div>
+      </div>
+
+      <!-- Secondary grid -->
+      <div class="cards-secondary a6">
+        <div class="card-sec demo-card" onclick="show('demo')">
+          <span class="sec-corner demo-badge">INTERACTIVE</span>
+          <span class="sec-icon">▶</span>
+          <div class="sec-title">Interactive Demo</div>
+          <div class="sec-desc">16-scene walkthrough with Sofia Reyes — a senior interior design consultant.</div>
+          <div class="sec-feats">
+            <div class="sec-feat">Sofia's pipeline setup</div>
+            <div class="sec-feat">Post-30 follow-up sequence</div>
+            <div class="sec-feat">Mileage from home call</div>
+            <div class="sec-feat">Vendor credits calculation</div>
+          </div>
+          <div class="sec-foot">
+            <span>demo.html</span>
+            <span class="open-link">Watch <span>→</span></span>
+          </div>
+        </div>
+
+        <div class="card-sec gtm-card" onclick="show('gtm')">
+          <span class="sec-corner gtm-badge">INTERNAL</span>
+          <span class="sec-icon">📖</span>
+          <div class="sec-title">GTM Bible v4</div>
+          <div class="sec-desc">Full go-to-market strategy — segments, prospects, sequences, pricing.</div>
+          <div class="sec-feats">
+            <div class="sec-feat">10 prospect tabs · 337k</div>
+            <div class="sec-feat">5 cadences · 25 templates</div>
+            <div class="sec-feat">BVS + SPIN framework</div>
+            <div class="sec-feat">Market × geo segmentation</div>
+          </div>
+          <div class="sec-foot">
+            <span>gtm-bible-v4.html</span>
+            <span class="open-link">Open <span>→</span></span>
+          </div>
+        </div>
+
+        <div class="card-sec land-card" onclick="show('landing')">
+          <span class="sec-corner land-badge">LIVE SITE</span>
+          <span class="sec-icon">🌐</span>
+          <div class="sec-title">Landing Page</div>
+          <div class="sec-desc">SEO/GEO/LLMO optimized public site with competitor table and free trial CTA.</div>
+          <div class="sec-feats">
+            <div class="sec-feat">LLMO entity definition</div>
+            <div class="sec-feat">JSON-LD structured data</div>
+            <div class="sec-feat">vs HoneyBook · Salesforce</div>
+            <div class="sec-feat">14-day free trial flow</div>
+          </div>
+          <div class="sec-foot">
+            <span>index.html</span>
+            <span class="open-link">View <span>→</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP FRAME -->
+  <div class="frame-wrap" id="pane-app">
+    <div class="loading" id="load-app">
+      <div class="spinner"></div>
+      <div class="loading-label">Loading CRM Application…</div>
+    </div>
+    <iframe id="frame-app" title="Filveo CRM Application" allowfullscreen></iframe>
+  </div>
+
+  <!-- DEMO FRAME -->
+  <div class="frame-wrap" id="pane-demo">
+    <div class="loading" id="load-demo">
+      <div class="spinner"></div>
+      <div class="loading-label">Loading Demo…</div>
+    </div>
+    <iframe id="frame-demo" title="Filveo Interactive Demo" allowfullscreen></iframe>
+  </div>
+
+  <!-- GTM FRAME -->
+  <div class="frame-wrap" id="pane-gtm">
+    <div class="loading" id="load-gtm">
+      <div class="spinner"></div>
+      <div class="loading-label">Loading GTM Bible…</div>
+    </div>
+    <iframe id="frame-gtm" title="Filveo GTM Bible" allowfullscreen></iframe>
+  </div>
+
+  <!-- LANDING FRAME -->
+  <div class="frame-wrap" id="pane-landing">
+    <div class="loading" id="load-landing">
+      <div class="spinner"></div>
+      <div class="loading-label">Loading Landing Page…</div>
+    </div>
+    <iframe id="frame-landing" title="Filveo Landing Page" allowfullscreen></iframe>
+  </div>
+
+</div>
+
+<!-- ── STATUS BAR ── -->
+<div class="statusbar">
+  <div class="status-item"><div class="status-dot"></div> Filveo v4.0</div>
+  <div class="status-item">Solo $39/mo · Studio $89/mo · Enterprise custom</div>
+  <div style="flex:1"></div>
+  <div class="status-item" id="status-path">hub.html</div>
+</div>
+
+<script>
+  // ── File paths — EDIT these if your folder structure differs
+  // hub.html lives in: src/
+  const PATHS = {
+    app:     'app.html',
+    demo:    'demo.html',
+    gtm:     '../docs/gtm-bible-v4.html',
+    landing: 'index.html',
+  };
+
+  // Labels shown in the top bar
+  const LABELS = {
+    home:    'Command Center',
+    app:     'CRM Application — app.html',
+    demo:    'Interactive Demo (Sofia Reyes · 16 scenes) — demo.html',
+    gtm:     'GTM Bible v4 — go-to-market strategy, sequences, prospects',
+    landing: 'Landing Page (index.html) — public site',
+  };
+
+  const loaded   = { app: false, demo: false, gtm: false, landing: false };
+  let   current  = 'home';
+
+  function show(id) {
+    // Deactivate current
+    document.getElementById('pane-' + current)?.classList.remove('visible');
+    document.getElementById('btn-' + current)?.classList.remove('active');
+
+    current = id;
+
+    // Activate new
+    document.getElementById('pane-' + id)?.classList.add('visible');
+    document.getElementById('btn-' + id)?.classList.add('active');
+    document.getElementById('active-label').innerHTML =
+      id === 'home' ? 'Command Center' : '<strong>' + LABELS[id] + '</strong>';
+    document.getElementById('status-path').textContent = id === 'home' ? 'hub.html' : (PATHS[id] || '');
+
+    // Pop-out button
+    const popBtn = document.getElementById('pop-btn');
+    popBtn.style.display = id === 'home' ? 'none' : '';
+
+    // Load iframe the first time
+    if (id !== 'home' && !loaded[id]) {
+      loaded[id] = true;
+      const frame = document.getElementById('frame-' + id);
+      frame.src = PATHS[id];
+      frame.addEventListener('load', () => {
+        const loader = document.getElementById('load-' + id);
+        if (loader) loader.classList.add('hidden');
+      }, { once: true });
+    }
+  }
+
+  function popOut() {
+    if (current !== 'home' && PATHS[current]) {
+      window.open(PATHS[current], '_blank');
+    }
+  }
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const map = { '`': 'home', '1': 'app', '2': 'demo', '3': 'gtm', '4': 'landing' };
+    if (map[e.key]) show(map[e.key]);
+  });
+</script>
+</body>
+</html>
