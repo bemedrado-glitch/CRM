@@ -1,101 +1,160 @@
-# 🧵 Filveo CRM
+# Filveo Brand Guidelines
 
-> The only CRM built for interior designers and home furnishing sales professionals.
+## Name
+**Filveo** — pronounced "fill-VEE-oh"
 
-[![Status](https://img.shields.io/badge/Status-MVP%20Built-gold)](https://filveo.com)
-[![Version](https://img.shields.io/badge/Version-1.0-blue)](https://filveo.com)
-[![License](https://img.shields.io/badge/License-Private-red)](https://filveo.com)
+### Etymology
+*Filo* (Italian/Spanish/French: thread) + *veo* (Spanish: I see)
+= "I see every thread of your client relationships"
+
+Thread is the core metaphor: the post-sale connection that keeps the
+designer-client relationship from unraveling after delivery.
 
 ---
 
-## What is Filveo?
+## Visual Identity
 
-Filveo is a cloud-based CRM with post-sale lifecycle tracking, mileage auto-sync, vendor credits management, and urgency-scored pipeline automation — designed exclusively for interior design and home furnishing sales professionals.
+### Color Palette — "Midnight Silk"
 
-**Why it exists**: Every generic CRM (HoneyBook, Mydoma, Houzz Pro, Salesforce) treats the design sale as complete at delivery. Filveo tracks what happens *after* — the 30-day check-in, the 60-day follow-up, the referral, the repeat purchase. That post-delivery window is where $28,400/year in average annual revenue walks out the door unrecovered.
+The palette is inspired by the materials interior designers work with:
+aged silk, warm parchment, champagne linen, midnight lacquer, and patinated bronze.
+It is deliberately NOT the gold of tech startups or the stark black of fashion.
+It is the gold of *aged things that become more beautiful with time*.
 
-## Quick Start
+```
+BACKGROUNDS
+--ink:    #08090d   Midnight Void      (deepest bg, pure midnight)
+--ink-90: #0d1018   Main Background    (primary page background)
+--ink-80: #131a26   Elevated Surface   (cards, panels)
+--ink-70: #1c2535   Card Interior      (inner surfaces)
+--ink-60: #2a3549   Border             (all borders/dividers)
+--ink-40: #4a5672   Muted Element      (disabled states, icons)
+--ink-20: #8a94a8   Dim Text           (secondary text)
+--ink-10: #c8cedc   Light Text         (primary text on dark)
 
-```bash
-# Serve locally — no build step needed
-cd src && python3 -m http.server 8080
+PRIMARY ACCENT — Champagne Silk
+--gold:    #d4c4a8  Champagne Silk     (primary actions, logo)
+--gold-lt: #e8dcc8  Bright Silk        (hover states, highlights)
+--gold-dk: #b8a884  Aged Bronze        (secondary accents, borders)
 
-# Open in browser
-open http://localhost:8080/          # Landing page
-open http://localhost:8080/app.html  # CRM application
-open http://localhost:8080/demo.html # Interactive demo
+SEMANTIC COLORS (muted, not neon)
+--red:    #c87878   Dusty Rose         (errors, loss aversion)
+--green:  #7aad94   Muted Jade         (success, gains, completion)
+--blue:   #7a9fc4   Steel Blue         (information, links)
+--purple: #9a88c4   Lavender           (optional accent)
 ```
 
-## Project Files
+### Typography
 
-| File | Description | Size |
-|---|---|---|
-| `src/index.html` | Landing page — SEO/GEO/LLMO optimized, viral neuromarketing | 111k |
-| `src/app.html` | Full CRM application — 12 tabs, all features | 573k |
-| `src/demo.html` | 16-scene Sofia Reyes walkthrough demo | 296k |
-| `docs/gtm-bible-v4.html` | GTM Bible — strategy, prospects, pricing, sequences | 337k |
-
-## Key Features
-
-- ✅ Post-30/Post-60 delivery follow-up automation
-- ✅ Urgency-scored pipeline (HOT/WARM/NURTURE/COLD)
-- ✅ Mileage auto-sync from home calls (IRS-compliant)
-- ✅ Vendor Credits tracking (manufacturer incentive programs)
-- ✅ Commission calculator (monthly/YTD/projection)
-- ✅ Quote PDF generator
-- ✅ SMS/WhatsApp templates by pipeline tier
-- ✅ Client portal with delivery timeline
-- ✅ Email sequences (25 templates, 5 cadences)
-- ✅ Expense tracker with net margin
-- ✅ Review request automation (Google, Houzz)
-- ✅ Analytics with custom fiscal year
-- ✅ Multi-designer team workspace
-- ✅ PWA — installs on iPhone and Android
-- ✅ GDPR/CCPA compliant
-- ✅ WCAG 2.1 AA accessible
-
-## Pricing
-
-| Plan | Price | Users | Key Features |
+| Role | Font | Weight | Usage |
 |---|---|---|---|
-| Solo | $39/mo | 1 | All features |
-| Studio | $89/mo | Up to 5 | Team pipeline, shared analytics |
-| Enterprise | Custom | Unlimited | White-label, custom integrations, SLA |
+| Display | Playfair Display | 700, 800 | Page titles, hero headings |
+| Display Italic | Playfair Display Italic | 700 | Pull quotes, emphasis |
+| Body | DM Sans | 400, 500, 600, 700 | All body copy, UI |
+| Data | Cormorant Garamond | 400, 600 | Revenue numbers, stats |
 
-14-day free trial · No credit card required
+**Google Fonts import:**
+```html
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+```
 
-## Tech Stack
+### Design Principles
 
-- **Frontend**: Vanilla HTML/CSS/JS (zero framework, zero build step)
-- **Database**: Supabase (new dedicated Filveo project — not shared)
-- **Default storage**: localStorage (`filveo_data_v1`)
-- **PWA**: Service worker + manifest for offline capability
-- **Fonts**: Playfair Display, DM Sans, Cormorant Garamond (Google Fonts)
-- **Hosting**: To be deployed (recommend Vercel or Netlify)
-
-## Brand — Midnight Silk
-
-| Element | Value |
-|---|---|
-| Primary color | `#d4c4a8` Champagne Silk |
-| Background | `#0d1018` Midnight |
-| Display font | Playfair Display |
-| Body font | DM Sans |
-| Data font | Cormorant Garamond |
-
-## Project Status
-
-**Rating: 78/100** — Exceptional for MVP stage.
-
-**Gap to 95/100**: First 10 paying customers, Stripe + hosted auth, mobile PWA, Gmail/Outlook API, enterprise pilot initiated.
-
-## Contact
-
-- **Founder**: Bernardo (hello@filveo.com)
-- **Privacy**: privacy@filveo.com
-- **Sales**: sales@filveo.com
-- **Enterprise**: enterprise@filveo.com
+1. **Luxury without ostentation** — Like a Bottega showroom, not a Las Vegas casino
+2. **Restraint is the point** — One well-placed gold element beats five scattered ones
+3. **Depth through texture** — Grain overlay at 4% opacity creates warmth
+4. **Space is a feature** — Generous negative space signals confidence
+5. **Data deserves elegance** — Revenue numbers in Cormorant feel like financial reporting
+6. **Motion is subtle** — 12px fade-up on load, nothing more
 
 ---
 
-> *Read `CLAUDE.md` for full project context before making any changes.*
+## Logo Concept
+
+The Filveo logo uses the ⌭ symbol (not a standard character — custom glyph)
+representing two threads crossing — the designer-client connection held together.
+
+Text treatment:
+- Wordmark: FILVEO in Playfair Display uppercase, letter-spacing: .08em
+- Color: --gold-lt (#e8dcc8) on dark backgrounds
+- Subtitle: "INTERIOR DESIGN CRM" in DM Sans, 500 weight, letter-spacing: .2em, --gold-dk
+
+### TODO: Create assets
+- [ ] logo.svg — vector wordmark
+- [ ] logo.png — 512×512 for PWA manifest
+- [ ] favicon.ico — 16, 32, 48px
+- [ ] og-image.jpg — 1200×630 for social sharing (pipeline screenshot + wordmark)
+- [ ] apple-touch-icon.png — 180×180
+
+---
+
+## Voice & Tone
+
+**Filveo speaks like a trusted colleague, not a sales tool.**
+
+| Attribute | What it means |
+|---|---|
+| Confident | States facts, doesn't over-explain |
+| Warm | Acknowledges the human behind the designer |
+| Direct | "You're losing $28,400/year" — not "You might be missing some revenue" |
+| Non-technical | Pipeline, follow-up, mileage — not "CRM workflows" |
+| Industry-native | Uses design vocabulary: home call, delivery, atelier, folio |
+
+### Voice examples
+
+❌ "Filveo features a comprehensive post-sale lifecycle management system"
+✅ "Filveo follows up after delivery — so you don't have to remember to"
+
+❌ "Optimize your revenue pipeline with AI-powered urgency scoring"
+✅ "Your most urgent deal surfaces at the top of your list every morning"
+
+❌ "Leverage our vendor incentive credit tracking module"
+✅ "Stop losing vendor credits to spreadsheets"
+
+---
+
+## Positioning
+
+**Category**: Interior Design CRM
+**Tagline**: *Every client relationship, beautifully tracked.*
+**One-line**: The only CRM that follows up after delivery.
+**Mission**: Give interior designers the professional infrastructure their work deserves.
+
+### vs. Competitors
+
+| Tool | Their position | Filveo's wedge |
+|---|---|---|
+| HoneyBook | Contracts & invoicing | No post-sale tracking |
+| Mydoma Studio | Mood boards & client portals | No pipeline or follow-up |
+| Houzz Pro | Lead generation & marketing | No delivery lifecycle |
+| Salesforce | Enterprise CRM | $150/seat, no design workflows |
+| Excel | "It's free" | $28,400/year in missed follow-ups |
+
+---
+
+## Target Personas
+
+### Primary: Sofia (Senior Design Consultant)
+- 10+ years experience
+- $400k–$800k annual sales volume
+- Works at a major furniture brand or runs her own studio
+- Currently uses Excel + a yellow legal pad
+- Pain: delivering beautiful work but losing clients after delivery
+- Dream: being the designer clients always come back to
+
+### Secondary: Marco (Studio Owner)
+- Manages 5–15 designers
+- Needs team-level visibility, not just personal tracking
+- Currently uses HoneyBook or nothing for the team
+- Pain: no visibility into what his designers are doing after the sale
+- Dream: a real sales operation that scales with his team
+
+### Tertiary: Elena (VP Marketing, Enterprise Brand)
+- Evaluates tools for a national network (100+ designers)
+- Needs: white-label option, SLA, compliance, onboarding
+- Pain: her designers are under-tracked, vendor credits are unclaimed
+- Dream: a system that makes her network more profitable at scale
+
+---
+
+*Updated: 2026-04-14*
