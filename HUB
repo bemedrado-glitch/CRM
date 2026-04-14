@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filveo — Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold:    #d4c4a8;
+    --gold-b:  #e8d9bc;
+    --bg:      #0d1018;
+    --bg2:     #111520;
+    --border:  rgba(212,196,168,0.11);
+    --bh:      rgba(212,196,168,0.28);
+    --dim:     rgba(212,196,168,0.50);
+    --faint:   rgba(212,196,168,0.22);
+    --white:   #f2ede4;
+    --green:   #5db87a;
+    --blue:    #6a9fd8;
+    --red:     #e06060;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+  html, body { height:100%; overflow:hidden; background:var(--bg); color:var(--gold); font-family:'DM Sans',sans-serif; }
+
+  /* ─────────── SETUP SCREEN ─────────── */
+  #setup {
+    display: none;
+    position: fixed; inset:0; z-index:1000;
+    background: var(--bg);
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    padding: 40px;
+  }
+  #setup.show { display:flex; }
+  .setup-card {
+    max-width: 600px; width:100%;
+    border: 1px solid var(--bh);
+    border-radius: 20px;
+    padding: 40px 44px;
+    background: rgba(212,196,168,0.03);
+  }
+  .setup-icon { font-size:36px; margin-bottom:16px; }
+  .setup-title {
+    font-family:'Playfair Display',serif;
+    font-size:28px; font-weight:600;
+    color:var(--white); letter-spacing:-0.01em;
+    margin-bottom:10px;
+  }
+  .setup-sub { font-size:14px; color:var(--dim); line-height:1.65; margin-bottom:28px; }
+  .setup-steps { display:flex; flex-direction:column; gap:14px; margin-bottom:28px; }
+  .step {
+    display:flex; align-items:flex-start; gap:14px;
+    padding:16px 18px;
+    border:1px solid var(--border); border-radius:12px;
+    background: rgba(255,255,255,0.02);
+  }
+  .step-num {
+    width:26px; height:26px; border-radius:50%; flex-shrink:0;
+    background:rgba(212,196,168,0.1); border:1px solid var(--bh);
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:600; color:var(--gold-b);
+  }
+  .step-body { flex:1; }
+  .step-label { font-size:13px; font-weight:500; color:var(--white); margin-bottom:4px; }
+  .step-cmd {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size:12px;
+    background:rgba(0,0,0,0.4);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:8px 12px;
+    color:var(--gold-b);
+    display:block;
+    margin-top:6px;
+    letter-spacing:0.02em;
+  }
+  .step-note { font-size:11px; color:var(--faint); margin-top:4px; }
+  .setup-warn {
+    display:flex; gap:10px; align-items:flex-start;
+    padding:14px 16px;
+    background:rgba(224,96,96,0.07);
+    border:1px solid rgba(224,96,96,0.2);
+    border-radius:10px;
+    font-size:12px; color:rgba(224,96,96,0.8);
+    line-height:1.55;
+  }
+
+  /* ─────────── MAIN APP SHELL ─────────── */
+  #app {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+  }
+  #app.show { display:flex; }
+
+  /* Top bar */
+  .bar {
+    height:48px; flex-shrink:0;
+    display:flex; align-items:center; gap:12px;
+    padding:0 16px;
+    border-bottom:1px solid var(--border);
+    background:var(--bg);
+    z-index:10;
+  }
+  .logo {
+    font-family:'Playfair Display',serif;
+    font-size:17px; font-weight:600; color:var(--gold-b);
+    letter-spacing:-0.01em; white-space:nowrap;
+  }
+  .bar-sep { width:1px; height:18px; background:var(--border); flex-shrink:0; }
+  .cur-label { font-size:12px; color:var(--dim); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cur-label b { color:var(--white); font-weight:500; }
+
+  /* Tab nav */
+  .tabs {
+    display:flex; gap:3px;
+    background:var(--bg2); border:1px solid var(--border);
+    border-radius:10px; padding:3px;
+  }
+  .tab {
+    display:flex; align-items:center; gap:6px;
+    padding:5px 13px; border-radius:7px;
+    font-size:12px; font-weight:500;
+    color:var(--faint); cursor:pointer;
+    border:none; background:transparent;
+    transition:all .15s; white-space:nowrap; user-select:none;
+  }
+  .tab:hover { color:var(--dim); background:rgba(255,255,255,0.03); }
+  .tab.on { color:var(--gold-b); background:rgba(212,196,168,0.10); border:1px solid rgba(212,196,168,0.18); }
+  .tab .badge {
+    font-size:9px; padding:2px 6px; border-radius:8px;
+    letter-spacing:0.08em; font-weight:600;
+  }
+  .bl { background:rgba(93,184,122,0.15);  color:var(--green); border:1px solid rgba(93,184,122,0.25); }
+  .bi { background:rgba(106,159,216,0.12); color:var(--blue);  border:1px solid rgba(106,159,216,0.22); }
+  .bg { background:rgba(212,196,168,0.07); color:var(--faint); border:1px solid var(--border); }
+
+  .pop-btn {
+    display:none; align-items:center; gap:5px;
+    padding:5px 11px; border-radius:8px;
+    font-size:11px; font-weight:500; color:var(--faint);
+    border:1px solid var(--border); background:transparent;
+    cursor:pointer; transition:all .15s; white-space:nowrap;
+  }
+  .pop-btn.show { display:flex; }
+  .pop-btn:hover { color:var(--dim); border-color:var(--bh); }
+
+  /* Content area */
+  .content { flex:1; position:relative; overflow:hidden; }
+
+  /* Home panel */
+  .home {
+    position:absolute; inset:0; overflow-y:auto;
+    padding:44px 52px 60px;
+    display:none;
+  }
+  .home.on { display:block; }
+  .hi { max-width:880px; }
+  .eyebrow {
+    font-size:10px; letter-spacing:0.2em; text-transform:uppercase;
+    color:var(--faint); margin-bottom:14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before { content:''; display:block; width:24px; height:1px; background:var(--bh); }
+  .htitle {
+    font-family:'Playfair Display',serif;
+    font-size:clamp(30px,4vw,50px); font-weight:600;
+    color:var(--white); letter-spacing:-0.02em; line-height:1.1;
+  }
+  .htitle em { font-style:italic; color:var(--gold); }
+  .hsub { margin-top:14px; font-size:15px; color:var(--dim); max-width:500px; line-height:1.65; font-weight:300; }
+
+  .stats {
+    display:flex; gap:0; margin:28px 0;
+    border:1px solid var(--border); border-radius:12px;
+    overflow:hidden; background:rgba(255,255,255,0.015); width:fit-content;
+  }
+  .st { padding:14px 26px; border-right:1px solid var(--border); }
+  .st:last-child { border-right:none; }
+  .sv {
+    font-family:'Cormorant Garamond',serif;
+    font-size:28px; font-weight:300; color:var(--gold-b); line-height:1;
+  }
+  .sl { font-size:11px; color:var(--faint); margin-top:4px; }
+
+  /* Cards */
+  .clabel { font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--faint); margin-bottom:14px; }
+
+  .cprimary {
+    border:1px solid var(--border); border-radius:16px;
+    padding:28px 34px; margin-bottom:12px;
+    background:linear-gradient(135deg,rgba(212,196,168,0.04),rgba(212,196,168,0.01));
+    cursor:pointer; transition:border-color .2s, transform .2s, box-shadow .2s;
+    position:relative; overflow:hidden;
+  }
+  .cprimary:hover { border-color:var(--bh); transform:translateY(-2px); box-shadow:0 14px 44px rgba(0,0,0,.35); }
+  .cprimary::before {
+    content:''; position:absolute; top:0; right:0;
+    width:200px; height:200px;
+    background:radial-gradient(circle,rgba(212,196,168,0.07) 0%,transparent 70%);
+    border-radius:50%; transform:translate(30%,-30%);
+  }
+  .ctag {
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:10px; letter-spacing:0.12em; text-transform:uppercase;
+    color:var(--faint); border:1px solid var(--border); border-radius:20px;
+    padding:3px 11px; margin-bottom:12px;
+  }
+  .dot-g { width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:p 2s infinite; }
+  @keyframes p{0%,100%{opacity:1}50%{opacity:.35}}
+  .ctitle { font-family:'Playfair Display',serif; font-size:24px; font-weight:600; color:var(--white); letter-spacing:-0.01em; margin-bottom:6px; }
+  .cdesc { font-size:13px; color:var(--dim); line-height:1.6; max-width:440px; }
+  .cpills { display:flex; flex-wrap:wrap; gap:6px; margin-top:14px; }
+  .pill { font-size:10px; padding:3px 10px; border-radius:20px; background:rgba(212,196,168,0.07); color:var(--dim); border:1px solid rgba(212,196,168,0.1); }
+  .cgo { display:flex; align-items:center; gap:8px; margin-top:18px; font-size:13px; font-weight:600; color:var(--gold-b); }
+  .arr { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; border:1px solid var(--bh); font-size:13px; transition:transform .2s,background .2s; }
+  .cprimary:hover .arr { transform:translateX(3px); background:rgba(212,196,168,0.08); }
+
+  .cgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .csec {
+    border:1px solid var(--border); border-radius:14px;
+    padding:22px; background:rgba(255,255,255,0.012);
+    cursor:pointer; transition:border-color .2s,transform .2s,box-shadow .2s;
+    position:relative; overflow:hidden;
+  }
+  .csec:hover { transform:translateY(-2px); box-shadow:0 12px 36px rgba(0,0,0,.28); }
+  .c-demo { border-color:rgba(106,159,216,0.16); }
+  .c-demo:hover { border-color:rgba(106,159,216,0.38); }
+  .c-gtm { border-color:rgba(212,196,168,0.12); }
+  .c-gtm:hover { border-color:var(--bh); }
+  .c-land { border-color:rgba(93,184,122,0.14); }
+  .c-land:hover { border-color:rgba(93,184,122,0.36); }
+  .corner {
+    position:absolute; top:11px; right:11px;
+    font-size:9px; letter-spacing:0.1em; padding:2px 7px;
+    border-radius:8px; font-weight:600;
+  }
+  .ci { background:rgba(106,159,216,0.12);color:var(--blue);border:1px solid rgba(106,159,216,0.22); }
+  .cm { background:rgba(212,196,168,0.07);color:var(--faint);border:1px solid var(--border); }
+  .cl { background:rgba(93,184,122,0.10);color:var(--green);border:1px solid rgba(93,184,122,0.22); }
+  .sicon { font-size:20px; margin-bottom:10px; display:block; }
+  .stitle { font-family:'Playfair Display',serif; font-size:17px; font-weight:600; color:var(--white); margin-bottom:5px; }
+  .sdesc { font-size:12px; color:var(--dim); line-height:1.55; }
+  .sfeats { margin-top:10px; display:flex; flex-direction:column; gap:3px; }
+  .sf { font-size:11px; color:var(--faint); display:flex; align-items:center; gap:5px; }
+  .sf::before { content:'✦'; font-size:7px; color:rgba(212,196,168,0.3); }
+  .sfoot {
+    margin-top:14px; display:flex; align-items:center; justify-content:space-between;
+    font-size:11px; color:var(--faint);
+    border-top:1px solid var(--border); padding-top:10px;
+  }
+  .olink { color:var(--gold); font-weight:500; font-size:12px; display:flex; align-items:center; gap:3px; transition:gap .15s; }
+  .csec:hover .olink { gap:7px; }
+
+  /* Iframe panes */
+  .fpane {
+    position:absolute; inset:0; display:none; flex-direction:column;
+  }
+  .fpane.on { display:flex; }
+  .fpane iframe { flex:1; width:100%; border:none; background:var(--bg); }
+  .loader {
+    position:absolute; inset:0; background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    flex-direction:column; gap:14px; z-index:5;
+    transition:opacity .3s;
+  }
+  .loader.gone { opacity:0; pointer-events:none; }
+  .spin { width:28px;height:28px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite; }
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .lbl { font-size:11px; color:var(--faint); font-family:'Cormorant Garamond',serif; letter-spacing:0.1em; }
+
+  /* Status bar */
+  .sbar {
+    height:26px; flex-shrink:0;
+    border-top:1px solid var(--border);
+    display:flex; align-items:center; gap:20px;
+    padding:0 16px; font-size:10px; color:var(--faint);
+    background:var(--bg);
+  }
+  .sdot { width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 4px var(--green); }
+  .si { display:flex;align-items:center;gap:5px; }
+
+  /* Animations */
+  @keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .a1{animation:fu .4s .05s both} .a2{animation:fu .4s .10s both}
+  .a3{animation:fu .4s .15s both} .a4{animation:fu .4s .20s both}
+  .a5{animation:fu .4s .26s both} .a6{animation:fu .4s .31s both}
+
+  @media(max-width:820px){
+    .home{padding:28px 20px 40px}
+    .cgrid{grid-template-columns:1fr 1fr}
+    .tab .badge{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════ SETUP SCREEN (shown when file:// protocol) ════════ -->
+<div id="setup">
+  <div class="setup-card">
+    <div class="setup-icon">⚠️</div>
+    <div class="setup-title">Local server required</div>
+    <div class="setup-sub">
+      Browsers block iframes from loading other local files when opened directly (<code style="font-size:12px;color:var(--gold)">file://</code>). You need to serve the project from a local HTTP server — it takes one command and 10 seconds.
+    </div>
+    <div class="setup-steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-label">Place <code style="color:var(--gold)">hub.html</code> at your project root</div>
+          <div class="step-note">Same folder that contains both <code>src/</code> and <code>docs/</code></div>
+          <code class="step-cmd">
+            project-root/<br>
+            &nbsp;&nbsp;hub.html&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;← this file<br>
+            &nbsp;&nbsp;src/<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;app.html<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;demo.html<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;index.html<br>
+            &nbsp;&nbsp;docs/<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;gtm-bible-v4.html
+          </code>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-label">Start the local server from project root</div>
+          <code class="step-cmd">cd /path/to/your-project && python3 -m http.server 8080</code>
+          <div class="step-note">Or use: <code style="color:var(--gold)">npx serve .</code> or <code style="color:var(--gold)">npx http-server .</code></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-label">Open the hub in your browser</div>
+          <code class="step-cmd">http://localhost:8080/hub.html</code>
+        </div>
+      </div>
+    </div>
+    <div class="setup-warn">
+      <span>⚠</span>
+      <span>Previously you ran <code>cd src && python3 -m http.server 8080</code> — that made the GTM Bible unreachable because it's outside <code>src/</code>. Run the server one folder up (project root) so it can see both <code>src/</code> and <code>docs/</code>.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ MAIN APP SHELL ════════ -->
+<div id="app">
+
+  <!-- Top bar -->
+  <div class="bar">
+    <div class="logo">Filveo</div>
+    <div class="bar-sep"></div>
+    <div class="cur-label" id="cur">Command Center</div>
+
+    <nav class="tabs">
+      <button class="tab on" id="t-home"    onclick="go('home')">    <span>⊞</span> Hub</button>
+      <button class="tab"    id="t-app"     onclick="go('app')">     <span>⬡</span> App     <span class="badge bl">LIVE</span></button>
+      <button class="tab"    id="t-demo"    onclick="go('demo')">    <span>▶</span> Demo    <span class="badge bi">16 scenes</span></button>
+      <button class="tab"    id="t-gtm"     onclick="go('gtm')">     <span>📖</span> GTM     <span class="badge bg">v4</span></button>
+      <button class="tab"    id="t-landing" onclick="go('landing')"> <span>🌐</span> Landing <span class="badge bl">SITE</span></button>
+    </nav>
+
+    <button class="pop-btn" id="popbtn" onclick="popout()">↗ New tab</button>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Home -->
+    <div class="home on" id="p-home">
+      <div class="hi">
+        <div class="eyebrow a1">All resources · one place</div>
+        <h1 class="htitle a2">Your complete<br><em>sales operating system.</em></h1>
+        <p class="hsub a3">CRM app, interactive demo, GTM strategy, and landing page — one window.</p>
+        <div class="stats a4">
+          <div class="st"><div class="sv">$28.4k</div><div class="sl">avg. annual revenue recovered</div></div>
+          <div class="st"><div class="sv">12</div><div class="sl">CRM modules</div></div>
+          <div class="st"><div class="sv">16</div><div class="sl">demo scenes</div></div>
+          <div class="st"><div class="sv">5,973%</div><div class="sl">ROI payback in 1.6 days</div></div>
+        </div>
+        <div class="clabel a5">Launch destination</div>
+        <div class="cprimary a5" onclick="go('app')">
+          <div class="ctag"><div class="dot-g"></div>CRM Application · Active</div>
+          <div class="ctitle">Full CRM Application</div>
+          <div class="cdesc">12 tabs. Post-sale lifecycle, mileage auto-sync, vendor credits, urgency-scored pipeline, commission calculator, client portal, and team workspace.</div>
+          <div class="cpills">
+            <span class="pill">Post-30 / Post-60</span><span class="pill">Urgency Score</span>
+            <span class="pill">Mileage Log</span><span class="pill">Vendor Credits</span>
+            <span class="pill">Quote PDF</span><span class="pill">Client Portal</span><span class="pill">PWA</span>
+          </div>
+          <div class="cgo"><div class="arr">→</div> Open application</div>
+        </div>
+        <div class="cgrid a6">
+          <div class="csec c-demo" onclick="go('demo')">
+            <span class="corner ci">INTERACTIVE</span>
+            <span class="sicon">▶</span>
+            <div class="stitle">Interactive Demo</div>
+            <div class="sdesc">16-scene walkthrough with Sofia Reyes — home furnishing rep at EA.</div>
+            <div class="sfeats">
+              <div class="sf">Pipeline setup</div><div class="sf">Post-30 follow-up</div>
+              <div class="sf">Mileage from home call</div><div class="sf">Vendor credits</div>
+            </div>
+            <div class="sfoot"><span>src/demo.html</span><span class="olink">Watch →</span></div>
+          </div>
+          <div class="csec c-gtm" onclick="go('gtm')">
+            <span class="corner cm">INTERNAL</span>
+            <span class="sicon">📖</span>
+            <div class="stitle">GTM Bible v4</div>
+            <div class="sdesc">Full go-to-market strategy — segments, prospects, sequences, pricing.</div>
+            <div class="sfeats">
+              <div class="sf">10 prospect tabs</div><div class="sf">5 cadences · 25 templates</div>
+              <div class="sf">BVS + SPIN</div><div class="sf">Market × geo segments</div>
+            </div>
+            <div class="sfoot"><span>docs/gtm-bible-v4.html</span><span class="olink">Open →</span></div>
+          </div>
+          <div class="csec c-land" onclick="go('landing')">
+            <span class="corner cl">LIVE SITE</span>
+            <span class="sicon">🌐</span>
+            <div class="stitle">Landing Page</div>
+            <div class="sdesc">SEO/GEO/LLMO optimized public site with competitor table and free trial CTA.</div>
+            <div class="sfeats">
+              <div class="sf">LLMO entity definition</div><div class="sf">JSON-LD structured data</div>
+              <div class="sf">vs HoneyBook · Salesforce</div><div class="sf">14-day free trial</div>
+            </div>
+            <div class="sfoot"><span>src/index.html</span><span class="olink">View →</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- App frame -->
+    <div class="fpane" id="p-app">
+      <div class="loader" id="l-app"><div class="spin"></div><div class="lbl">Loading CRM Application…</div></div>
+      <iframe id="f-app" title="CRM App" allowfullscreen></iframe>
+    </div>
+
+    <!-- Demo frame -->
+    <div class="fpane" id="p-demo">
+      <div class="loader" id="l-demo"><div class="spin"></div><div class="lbl">Loading Demo…</div></div>
+      <iframe id="f-demo" title="Demo" allowfullscreen></iframe>
+    </div>
+
+    <!-- GTM frame -->
+    <div class="fpane" id="p-gtm">
+      <div class="loader" id="l-gtm"><div class="spin"></div><div class="lbl">Loading GTM Bible…</div></div>
+      <iframe id="f-gtm" title="GTM Bible" allowfullscreen></iframe>
+    </div>
+
+    <!-- Landing frame -->
+    <div class="fpane" id="p-landing">
+      <div class="loader" id="l-landing"><div class="spin"></div><div class="lbl">Loading Landing Page…</div></div>
+      <iframe id="f-landing" title="Landing Page" allowfullscreen></iframe>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- Status bar -->
+  <div class="sbar">
+    <div class="si"><div class="sdot"></div> Filveo v4.0 · 2026</div>
+    <div class="si">Solo $39/mo · Studio $89/mo</div>
+    <div style="flex:1"></div>
+    <div id="spath">hub.html</div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+  // ── File paths from project root ──────────────────────────
+  // hub.html must sit at the project root (same level as src/ and docs/)
+  const PATHS = {
+    app:     'src/app.html',
+    demo:    'src/demo.html',
+    gtm:     'docs/gtm-bible-v4.html',
+    landing: 'src/index.html',
+  };
+  const LABELS = {
+    home:    'Command Center',
+    app:     'CRM Application',
+    demo:    'Interactive Demo — Sofia Reyes · 16 scenes',
+    gtm:     'GTM Bible v4 — strategy, sequences, prospects',
+    landing: 'Landing Page — public site',
+  };
+
+  // ── Detect file:// protocol ───────────────────────────────
+  if (location.protocol === 'file:') {
+    document.getElementById('setup').classList.add('show');
+  } else {
+    document.getElementById('app').classList.add('show');
+  }
+
+  // ── Navigation ────────────────────────────────────────────
+  const loaded = {};
+  let   active = 'home';
+
+  function go(id) {
+    // Deactivate previous
+    document.getElementById('p-' + active)?.classList.remove('on');
+    document.getElementById('t-' + active)?.classList.remove('on');
+
+    active = id;
+
+    // Activate
+    document.getElementById('p-' + id)?.classList.add('on');
+    document.getElementById('t-' + id)?.classList.add('on');
+
+    // Update labels
+    const lbl = document.getElementById('cur');
+    lbl.innerHTML = id === 'home' ? 'Command Center' : '<b>' + LABELS[id] + '</b>';
+    document.getElementById('spath').textContent = id === 'home' ? 'hub.html' : (PATHS[id] || '');
+
+    // Pop-out button
+    const pb = document.getElementById('popbtn');
+    pb.classList.toggle('show', id !== 'home');
+
+    // Load iframe once
+    if (id !== 'home' && !loaded[id]) {
+      loaded[id] = true;
+      const frame = document.getElementById('f-' + id);
+      if (frame) {
+        frame.src = PATHS[id];
+        frame.addEventListener('load', () => {
+          document.getElementById('l-' + id)?.classList.add('gone');
+        }, { once: true });
+        // Fallback: hide loader after 8s regardless
+        setTimeout(() => document.getElementById('l-' + id)?.classList.add('gone'), 8000);
+      }
+    }
+  }
+
+  function popout() {
+    if (active !== 'home' && PATHS[active]) {
+      window.open(PATHS[active], '_blank');
+    }
+  }
+
+  // Keyboard: ` = hub, 1-4 = pages
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    const map = { '`':'home', '1':'app', '2':'demo', '3':'gtm', '4':'landing' };
+    if (map[e.key]) go(map[e.key]);
+  });
+</script>
+</body>
+</html>
